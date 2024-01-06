@@ -13,7 +13,7 @@ import plotly.express as px
 from dash import no_update
 
 # Read the airline data into pandas dataframe
-spacex_df = pd.read_csv("spacex_launch_dash.csv")
+spacex_df = pd.read_csv("data/spacex_launch_dash.csv")
 max_payload = spacex_df['Payload Mass (kg)'].max()
 min_payload = spacex_df['Payload Mass (kg)'].min()
 
@@ -58,9 +58,8 @@ def get_pie_chart(entered_site):
         new_df = new_df.reset_index()
         fig = px.pie(new_df, values='class', names='Launch Site', title='Total Success Launches by Site')
     else:
-        new_df = spacex_df[spacex_df["Launch Site"] == entered_site]["class"].value_counts().to_frame()
-        new_df["name"] = ["Failure", "Success"]
-        fig = px.pie(new_df, values='class', names='name', title='Total Success Launches for ' + entered_site)
+        new_df = spacex_df[spacex_df["Launch Site"] == entered_site]["class"].value_counts().reset_index()
+        fig = px.pie(new_df, values='count', names='class', title='Total Success Launches for ' + entered_site)
     return fig
 
 # TASK 4:
@@ -70,15 +69,11 @@ def get_pie_chart(entered_site):
 )
 def get_scatter_plot(entered_site, payload):
     if entered_site == 'All Sites':
-        new_df = spacex_df
-        new_df2 = new_df[new_df["Payload Mass (kg)"] >= payload[0]]
-        new_df3 = new_df2[new_df["Payload Mass (kg)"] <= payload[1]]
-        fig2 = px.scatter(new_df3, )
+        new_df = spacex_df[(spacex_df["Payload Mass (kg)"] >= payload[0]) & (spacex_df["Payload Mass (kg)"] <= payload[1])]
+        fig2 = px.scatter(new_df, color="class", x="Launch Site", y="Payload Mass (kg)", title=f"Launch Site VS Payload Mass ({entered_site})")
     else:
-        new_df = spacex_df[spacex_df["Launch Site"] == entered_site]
-        new_df2 = new_df[new_df["Payload Mass (kg)"] >= payload[0]]
-        new_df3 = new_df2[new_df["Payload Mass (kg)"] <= payload[1]]
-        fig2 = px.scatter(new_df3, )
+        new_df = spacex_df[(spacex_df["Launch Site"] == entered_site) & (spacex_df["Payload Mass (kg)"] >= payload[0]) & (spacex_df["Payload Mass (kg)"] <= payload[1])]
+        fig2 = px.scatter(new_df, color="class", x="Launch Site", y="Payload Mass (kg)", title=f"Launch Site VS Payload Mass ({entered_site})")
     return fig2
 
 
